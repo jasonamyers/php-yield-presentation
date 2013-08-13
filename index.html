@@ -43,17 +43,31 @@
         </p>
         </section>
 
+        <section>
+          <h2>Yield, a modern language love story</h2>
+          <p>Originally Proposed in 1995, the yield keyword became official via the <a href="https://wiki.php.net/rfc/generators">Generators</a> RFP on June 20th 2013 with PHP 5.5.</p>
+          <p>Facebook said a Hip, Hop and Don't Stop, and did their own yield generators in HipHop PHP</p>
+          </section>
+
+          <section>
+          <p>They are HEAVILY BASED off of Python, with a nod towards the Mozilla JS implementation and the await C# concept.</p>
+          </section>
+
+        <section data-background="welldone.jpg">
+        <aside class="notes">I gotta say they did a fantastic job of pulling it all together.</aside>
+        </section>
+
         <section data-background="060418-F-6890S-054.jpg">
-        <aside class="notes">So what are Generators and Iterators</aside>
+        <aside class="notes">So what are Generators. Well to understand those, it's helpful to have a quick look at Iterators.</aside>
         </section>
 
         <section>
         <h2>Iterator</h2>
         <p>An object that lets us traverse a container</p>
-        <aside class="notes">A thing that lets us read through a data structure as if it were a list</aside>
         </section>
 
         <section data-background="wat.jpg">
+        <aside class="notes">A thing that lets us read through a data structure as if it were a list</aside>
         </section>
 
         <section>
@@ -96,6 +110,7 @@
           grape=wow, I love it!
           plum=nah, not me
         </p></pre>
+        <aside class="notes">Can anyone tell me a major drawbacks of an Iterator? Memory and speed!</aside>
         </section>
 
         <section>
@@ -150,15 +165,28 @@
         </section>
 
         <section>
+        <h2>TL; DR</h2>
+        <pre><code>
+          function xrange($min, $max) {
+              for ($i = $min; $i < $max; $i++) {
+                  yield $i;
+              }
+          }
+          </code></pre>
+        </section>
+
+        <section>
         <h2>Sequences</h2>
         <pre><code>
           function collatz($val) {
               yield $val;
 
               while ($val != 1) {
-                  if ($val%2 == 0) $val /= 2;
-
-                  else $val = 3*$val + 1;
+                  if ($val%2 == 0) {
+                      $val /= 2;
+                  } else {
+                      $val = 3*$val + 1;
+                  }
 
                   yield $val;
               }
@@ -169,8 +197,10 @@
           </code>
           11 34 17 52 26 13 40 20 10 5 16 8 4 2 1
           </pre>
+        <aside class="notes">The Collatz Sequence The conjecture is that no matter what number you start with, you shall always eventually reach 1. The property has also been called oneness. HOTPO (Half or Three Plus One)</aside>
         </section>
         <section data-background="fractal.png">
+        <aside class="notes">I'm well aware of how big of a nerd this makes me</aside>
         </section>
 
         <section>
@@ -179,13 +209,16 @@
         <pre><code>
           $arr = iterator_to_array(collatz(11));
           </code></pre>
+        <aside class="notes">Traversable (a term for reference from Python and JS) is basically anything that acts like a list or iterator.  Do not confuse this with the Traversable Interface that's for PHP internals.</aside>
         </section>
 
         <section>
         <h2>Transformations</h2>
         <pre><code>
           function multiply_sequence($a, $fac) {
-              foreach ($a as $val) yield $val*$fac;
+              foreach ($a as $val) {
+                  yield $val*$fac;
+              }
           }
 
           function to_html_list($input) {
@@ -194,6 +227,7 @@
               }
           }
           </code></pre>
+        <aside class="notes">These are extremely simple examples with the purpose of illustrating a usage.  In my daily work, we regularly use generators to transform data from a query into the format needed to display to the end user, or perform math on data points prior to formatting.</aside>
         </section>
 
         <section>
@@ -211,6 +245,7 @@
           <li>2</li>
           </code>
           </pre>
+        <aside class="notes">This is a perfect example of that although extremely simple where I'll chain a few generators together to get the desired result.</aside>
         </section>
 
         <section>
@@ -218,11 +253,14 @@
         <pre><code>
           function select_pattern($input, $pattern) {
               foreach ($input as $val) {
-                  if (preg_match($pattern, $val)) yield $val;
+                  if (preg_match($pattern, $val)) {
+                      yield $val;
+                  }
               }
           }
           </code>
           </pre>
+        <aside class="notes">Sometimes I wanna chain generators, but I need different behaviors based on the data I'm operating on.  Selection generators give me a great way to do just that.</aside>
         </section>
 
         <section>
@@ -230,7 +268,9 @@
         <pre><code>
           function getLines($file) {
                 $f = fopen($file, 'r');
-                if (!$f) throw new Exception();
+                if (!$f) {
+                    throw new Exception();
+                }
                 while ($line = fgets($f)) {
                     yield $line;
                 }
@@ -241,6 +281,7 @@
                 doSomethingWithLine($line);
           }
           </code></pre>
+        <aside class="notes">Skip reading the whole file by implementing a generator, and slowly sliding through the file.</aside>
         </section>
 
         <section>
@@ -258,14 +299,17 @@
           $log->send("Second");
           $log->send("Third");
           </code></pre>
+        <aside class="notes">We can also send data to be used in place of the keyword. We open the file, continue on and accept data as it's given to us.  Again useful with a selection or chain of generators.</aside>
         </section>
 
         <section data-background="offtherails.jpg">
+        <aside class="notes">So these next parts, are going to be a bit wierd</aside>
         </section>
 
         <section>
         <h2>Bro Remote Me!</h2>
         <p><strong>Fake</strong> the simultaneous processing of data</p>
+        <aside class="notes">We have a way to basically fake multithreading</aside>
         </section>
 
         <section data-background="wat.jpg">
@@ -274,6 +318,7 @@
         <section>
         <h2>Green Threads</h2>
         <p>threads that are scheduled by a virtual machine (VM/interperter?) instead of natively by the underlying operating system</p>
+        <aside class="notes">This is really context switching at this point. Worth noting people call this many things, and most languages have it or a library that does it. So let's look at a super simple example.</aside>
         </section>
 
         <section>
@@ -286,6 +331,7 @@
               }
           }
           </code></pre>
+        <aside class="notes">Function 1: opens a file processes a line and yields true.</aside>
         </section>
 
         <section>
@@ -298,7 +344,9 @@
               }
           }
           </code></pre>
+        <aside class="notes">Function 2: does the same thing.</aside>
         </section>
+
         <section>
         <pre><code>
           function step3() {
@@ -316,6 +364,7 @@
               processBody($body);
           }
           </code></pre>
+        <aside class="notes">Function 3: Gets us a page yielding every 8192 bytes, and processesBody() when done</aside>
         </section>
 
         <section>
@@ -333,6 +382,7 @@
           }
           runner(array(step1(), step2(), step3()));
           </code></pre>
+        <aside class="notes">Finally our runner function pulls it all together. this processes the steps switching between each at the yield step.</aside>
         </section>
 
 
@@ -380,6 +430,7 @@
               }
           }
           </code></pre>
+        <aside class="notes">Class for a buffer of values where potential future reads are represented with promises. Read: Return a promise that will be fulfilled with a value at some point in the future, Write: Write a string to the buffer that can be used to fulfil a promise.</aside>
         </section>
 
         <section>
@@ -394,6 +445,7 @@
               }
           }
           </code></pre>
+        <aside class="notes">Generator that prints a value from a buffer and then defers to nested_printer</aside>
         </section>
 
         <section>
@@ -407,6 +459,7 @@
               }
           }
           </code></pre>
+        <aside class="notes">Generator that prints 5 values from a buffer</aside>
         </section>
 
         <section>
@@ -440,6 +493,7 @@
           Nested printer: 12
           ...
           </pre>
+        <aside class="notes">Creates Buffers and Scheduler, Schedule a generator task for printer, Schedule a recurring task that writes incrementing integers to the buffer</aside>
         </section>
 
         <section>
@@ -452,11 +506,17 @@
 
           $scheduler->run();
         </code></pre>
+        <aside class="notes">Take advantage of ReactPHP NB IO, just add the tick method of the React event loop as a recurring task with the scheduler</aside>
         </section>
 
         <section>
         <h2>Async</h2>
         <p>Created by Matt Pryor, on <a href="https://bitbucket.org/mkjpryor/async/wiki/Home">Bitbucket</a></p>
+        </section>
+
+        <section>
+        <h2>Thanks</h2>
+        <p>Huge thanks to Paul M. Jones and William Golden!</p>
         </section>
 
         <section data-background="questions.jpg">
